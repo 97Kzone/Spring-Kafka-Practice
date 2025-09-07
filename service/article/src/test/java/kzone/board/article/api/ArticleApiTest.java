@@ -1,6 +1,7 @@
 package kzone.board.article.api;
 
 import kzone.board.article.service.request.ArticleCreateRequest;
+import kzone.board.article.service.response.ArticlePageResponse;
 import kzone.board.article.service.response.ArticleResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -61,6 +62,18 @@ public class ArticleApiTest {
                 .retrieve();
     }
 
+    @Test
+    void readAllTest() {
+        ArticlePageResponse response = restClient.get()
+                .uri("/v1/articles?boardId=1&page=1&pageSize=50000")
+                .retrieve()
+                .body(ArticlePageResponse.class);
+
+        System.out.println("response getArticleCount = " + response.getArticleCount());
+        for (ArticleResponse article : response.getArticles()) {
+            System.out.println("article = " + article.getArticleId());
+        }
+    }
 
     @Getter
     @AllArgsConstructor

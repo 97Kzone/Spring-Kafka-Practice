@@ -5,6 +5,7 @@ import kzone.board.article.entity.Article;
 import kzone.board.article.repository.ArticleRepository;
 import kzone.board.article.service.request.ArticleCreateRequest;
 import kzone.board.article.service.request.ArticleUpdateRequest;
+import kzone.board.article.service.response.ArticlePageResponse;
 import kzone.board.article.service.response.ArticleResponse;
 import kzone.board.common.snowflake.Snowflake;
 import lombok.RequiredArgsConstructor;
@@ -40,5 +41,17 @@ public class ArticleService {
     @Transactional
     public void delete(Long articleId) {
         articleRepository.deleteById(articleId);
+    }
+
+    public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize) {
+        return ArticlePageResponse.of(
+                articleRepository.findAll(boardId, (page - 1) * pageSize, pageSize).stream()
+                        .map(ArticleResponse::from)
+                        .toList(),
+                articleRepository.count(
+                        boardId,
+                        PageLimitCalculator.calculatePageLimit(page, pageSize, 10L)
+                )
+        );
     }
 }
