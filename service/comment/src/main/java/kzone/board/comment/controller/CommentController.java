@@ -46,7 +46,6 @@ public class CommentController {
             @RequestParam("articleId") Long articleId,
             @RequestParam(value = "lastParentCommentId", required = false) Long lastParentCommentId,
             @RequestParam(value = "lastCommentId", required = false)  Long lastCommentId,
-            @RequestParam("page") Long page,
             @RequestParam("pageSize") Long pageSize
     ) {
         return commentService.readAll(articleId, lastParentCommentId, lastCommentId, pageSize);
