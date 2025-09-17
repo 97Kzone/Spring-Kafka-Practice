@@ -2,7 +2,9 @@ package kzone.board.article.service;
 
 import jakarta.transaction.Transactional;
 import kzone.board.article.entity.Article;
+import kzone.board.article.entity.BoardArticleCount;
 import kzone.board.article.repository.ArticleRepository;
+import kzone.board.article.repository.BoardArticleCountRepository;
 import kzone.board.article.service.request.ArticleCreateRequest;
 import kzone.board.article.service.request.ArticleUpdateRequest;
 import kzone.board.article.service.response.ArticlePageResponse;
@@ -18,6 +20,7 @@ import java.util.List;
 public class ArticleService {
     private final Snowflake snowflake = new Snowflake();
     private final ArticleRepository articleRepository;
+    private final BoardArticleCountRepository boardArticleCountRepository;
 
     @Transactional
     public ArticleResponse create(ArticleCreateRequest request) {
@@ -25,6 +28,12 @@ public class ArticleService {
                 Article.create(snowflake.nextId(), request.getTitle(), request.getContent(), request.getBoardId(), request.getWriterId())
         );
 
+        int result = boardArticleCountRepository.increase(article.getBoardId());
+        if (result == 0) {
+            boardArticleCountRepository.save(
+                    BoardArticleCount.init(request.getBoardId(), 1L)
+            );
+        }
         return ArticleResponse.from(article);
     }
 
@@ -42,7 +51,9 @@ public class ArticleService {
 
     @Transactional
     public void delete(Long articleId) {
-        articleRepository.deleteById(articleId);
+        Article article = articleRepository.findById(articleId).orElseThrow();
+        articleRepository.delete(article);
+        boardArticleCountRepository.decrease(article.getBoardId());
     }
 
     public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize) {
@@ -63,5 +74,11 @@ public class ArticleService {
                 articleRepository.findAllInfiniteScroll(boardId, pageSize, lastArticleId);
 
         return articles.stream().map(ArticleResponse::from).toList();
+    }
+
+    public Long count(Long boardId) {
+        return boardArticleCountRepository.findById(boardId)
+                .map(BoardArticleCount::getArticleCount)
+                .orElse(0L);
     }
 }
