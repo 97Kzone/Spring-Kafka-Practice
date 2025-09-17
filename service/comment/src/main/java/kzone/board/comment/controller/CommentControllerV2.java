@@ -26,7 +26,7 @@ public class CommentControllerV2 {
         return commentService.create(request);
     }
 
-    @DeleteMapping("/v2/comment/{commentId}")
+    @DeleteMapping("/v2/comments/{commentId}")
     public void delete(
             @PathVariable("commentId") Long commentId) {
         commentService.delete(commentId);
@@ -48,5 +48,12 @@ public class CommentControllerV2 {
             @RequestParam("pageSize") Long pageSize
     ) {
         return commentService.readAllInfiniteScroll(articleId, lastPath, pageSize);
+    }
+
+    @GetMapping("/v2/comments/articles/{articleId}/count")
+    public Long count(
+            @PathVariable("articleId") Long articleId
+    ) {
+        return commentService.count(articleId);
     }
 }
