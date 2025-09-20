@@ -23,7 +23,9 @@ allprojects {
     }
 
     dependencies {
-            compileOnly 'org.projectlombok:lombok'
+        implementation 'ch.qos.logback:logback-classic'
+
+        compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
 
         testCompileOnly 'org.projectlombok:lombok'
