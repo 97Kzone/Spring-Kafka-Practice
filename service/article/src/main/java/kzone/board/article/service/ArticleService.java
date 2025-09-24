@@ -9,6 +9,11 @@ import kzone.board.article.service.request.ArticleCreateRequest;
 import kzone.board.article.service.request.ArticleUpdateRequest;
 import kzone.board.article.service.response.ArticlePageResponse;
 import kzone.board.article.service.response.ArticleResponse;
+import kzone.board.common.event.EventType;
+import kzone.board.common.event.payload.ArticleCreatedEventPayload;
+import kzone.board.common.event.payload.ArticleDeletedEventPayload;
+import kzone.board.common.event.payload.ArticleUpdatedEventPayload;
+import kzone.board.common.outboxmessagerelay.OutboxEventPublisher;
 import kzone.board.common.snowflake.Snowflake;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +25,7 @@ import java.util.List;
 public class ArticleService {
     private final Snowflake snowflake = new Snowflake();
     private final ArticleRepository articleRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
     private final BoardArticleCountRepository boardArticleCountRepository;
 
     @Transactional
@@ -34,6 +40,21 @@ public class ArticleService {
                     BoardArticleCount.init(request.getBoardId(), 1L)
             );
         }
+
+        outboxEventPublisher.publish(
+                EventType.ARTICLE_CREATED,
+                ArticleCreatedEventPayload.builder()
+                        .articleId(article.getArticleId())
+                        .title(article.getTitle())
+                        .content(article.getContent())
+                        .boardId(article.getBoardId())
+                        .createdAt(article.getCreatedAt())
+                        .modifiedAt(article.getModifiedAt())
+                        .boardArticleCount(article.getBoardId())
+                        .build(),
+                article.getBoardId()
+        );
+
         return ArticleResponse.from(article);
     }
 
@@ -41,6 +62,19 @@ public class ArticleService {
     public ArticleResponse update(Long articleId, ArticleUpdateRequest request) {
         Article article = articleRepository.findById(articleId).orElseThrow();
         article.update(request.getTitle(), request.getContent());
+
+        outboxEventPublisher.publish(
+                EventType.ARTICLE_UPDATED,
+                ArticleUpdatedEventPayload.builder()
+                        .articleId(article.getArticleId())
+                        .title(article.getTitle())
+                        .content(article.getContent())
+                        .boardId(article.getBoardId())
+                        .createdAt(article.getCreatedAt())
+                        .modifiedAt(article.getModifiedAt())
+                        .build(),
+                article.getBoardId()
+        );
 
         return ArticleResponse.from(article);
     }
@@ -54,6 +88,20 @@ public class ArticleService {
         Article article = articleRepository.findById(articleId).orElseThrow();
         articleRepository.delete(article);
         boardArticleCountRepository.decrease(article.getBoardId());
+        outboxEventPublisher.publish(
+                EventType.ARTICLE_DELETED,
+                ArticleDeletedEventPayload.builder()
+                        .articleId(article.getArticleId())
+                        .title(article.getTitle())
+                        .content(article.getContent())
+                        .boardId(article.getBoardId())
+                        .createdAt(article.getCreatedAt())
+                        .modifiedAt(article.getModifiedAt())
+                        .boardArticleCount(article.getBoardId())
+                        .build(),
+                article.getBoardId()
+        );
+
     }
 
     public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize) {
