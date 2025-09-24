@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ArticleCreatedEventHandler implements EventHandler<ArticleCreatedEventPayload> {
-    private ArticleCreatedTimeRepository articleCreatedTimeRepository;
+    private final ArticleCreatedTimeRepository articleCreatedTimeRepository;
 
     @Override
     public void handle(Event<ArticleCreatedEventPayload> event) {
