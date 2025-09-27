@@ -1,1 +1,24 @@
 server.port: 9005
+spring:
+  application:
+    name: kzone-board-article-read-service
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: kzone-board-article-read-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+endpoints:
+  kzone-board-article-service:
+    url: http://127.0.0.1:9000
+  kzone-board-comment-service:
+    url: http://127.0.0.1:9001
+  kzone-board-like-service:
+    url: http://127.0.0.1:9002
+  kzone-board-view-service:
+    url: http://127.0.0.1:9003
