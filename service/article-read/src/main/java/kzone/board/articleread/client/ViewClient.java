@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -20,13 +21,17 @@ public class ViewClient {
         restClient = RestClient.create(viewServiceUrl);
     }
 
+    // Redis 에서 데이터 조회
+    // Redis에 데이터가 없다면? => count 메서드 내부 로직 호출 & view Service로 원본 데이터 요청 + Redis input & response
+    // Redis에 데이터가 있다면? => 데이터 response
+    @Cacheable(key = "#articleId", value = "articleViewCount")
     public long count(Long articleId) {
+        log.info("[ViewClient.count] articleId = {}", articleId);
         try {
             return restClient.get()
                     .uri("/v1/article-views/articles/{articleId}/count", articleId)
                     .retrieve()
                     .body(Long.class);
-
         } catch (Exception e) {
             log.error("[ViewClient.count] articleId = {}", articleId, e);
             return 0;
