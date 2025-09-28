@@ -13,7 +13,7 @@ import org.springframework.web.client.RestClient;
 @RequiredArgsConstructor
 public class ViewClient {
     private RestClient restClient;
-    @Value("{endpoints.kzone-board-view-service.url}")
+    @Value("${endpoints.kzone-board-view-service.url}")
     private String viewServiceUrl;
 
     @PostConstruct
@@ -29,7 +29,7 @@ public class ViewClient {
         log.info("[ViewClient.count] articleId = {}", articleId);
         try {
             return restClient.get()
-                    .uri("/v1/article-views/articles/{articleId}/count", articleId)
+                    .uri("/v1/articles-views/articles/{articleId}/count", articleId)
                     .retrieve()
                     .body(Long.class);
         } catch (Exception e) {

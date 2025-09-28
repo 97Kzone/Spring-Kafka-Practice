@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ArticleReadEvnetConsumer {
-    private ArticleReadService articleReadService;
+    private final ArticleReadService articleReadService;
 
     @KafkaListener(topics = {
             EventType.Topic.KZONE_BOARD_ARTICLE,

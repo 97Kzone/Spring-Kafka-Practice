@@ -13,7 +13,7 @@ public class ArticleReadController {
     private final ArticleReadService articleReadService;
 
     @GetMapping("/v1/articles/{articleId}")
-    public ArticleReadResponse read(@PathVariable Long articleId) {
+    public ArticleReadResponse read(@PathVariable("articleId") Long articleId) {
         return articleReadService.read(articleId);
     }
 }

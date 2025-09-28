@@ -16,7 +16,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ArticleClient {
     private RestClient restClient;
-    @Value("{endpoints.kzone-board-article-service.url}")
+    @Value("${endpoints.kzone-board-article-service.url}")
     private String articleServiceUrl;
 
     @PostConstruct
