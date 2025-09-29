@@ -1,0 +1,32 @@
+package kzone.board.articleread.cache;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import kzone.board.common.dataserializer.DataSerializer;
+import lombok.Getter;
+import lombok.ToString;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+@Getter
+@ToString
+public class OptimizeCache {
+    private String data;
+    private LocalDateTime expiredAt;
+
+    public static OptimizeCache of(Object data, Duration ttl) {
+        OptimizeCache optimizeCache = new OptimizeCache();
+        optimizeCache.data = DataSerializer.serialize(data);
+        optimizeCache.expiredAt = LocalDateTime.now().plus(ttl);
+        return optimizeCache;
+    }
+
+    @JsonIgnore
+    public boolean isExpired() {
+        return LocalDateTime.now().isAfter(expiredAt);
+    }
+
+    public <T> T parseData(Class<T> dataType) {
+        return DataSerializer.deserialize(data, dataType);
+    }
+}
